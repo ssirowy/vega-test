@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { Vega } from "react-vega";
+import styled from 'styled-components'
 import Select from "react-select";
-import InputRange from "react-input-range";
+
 import {
   AppGrid,
-  Card,
   Channel,
   Fields,
   Group,
@@ -13,9 +12,10 @@ import {
   HeaderTitle,
   Heading,
   Label,
-  Main,
   PositionChannel,
-  SideBar
+  SideBar,
+  SwapButton,
+  VisualizationWindow
 } from "./components";
 
 import {
@@ -25,42 +25,42 @@ import {
   defaultSpec,
   fieldOptionsForSchema,
   positionChannel,
-  markOptions,
+  markOptions
 } from "./lib";
 
-import { useChannel, usePositionChannel } from './hooks'
+import { useChannel, usePositionChannel } from "./hooks";
 
 import "react-input-range/lib/css/index.css";
 
 import { dataSets } from "./data";
 
 export const App = () => {
+  const dataSetOptions = dataSetsOptionsFromDataSets(dataSets);
 
-  const dataSetOptions = dataSetsOptionsFromDataSets(dataSets)
+  const [dataSetOption, setDataSetOption] = useState(dataSetOptions[0]);
 
-  const [dataSetOption, setDataSetOption] = useState(dataSetOptions[0])
-
-  const {data, schema} = dataSetForName(dataSets, dataSetOption.value)
+  const { data, schema } = dataSetForName(dataSets, dataSetOption.value);
 
   const [selectedMark, setMarkOption] = useState(markOptions[0]);
-  const [width, setWidth] = useState(400);
-  const [height, setHeight] = useState(100);
 
-  const [xChannel, setXChannel] = usePositionChannel(schema)
-  const [yChannel, setYChannel] = usePositionChannel(schema)
+  const [xChannel, setXChannel, clearX] = usePositionChannel(schema);
+  const [yChannel, setYChannel, clearY] = usePositionChannel(schema);
 
-  const [colorChannel, setColorChannel] = useChannel(schema)
-  const [sizeChannel, setSizeChannel] = useChannel(schema)
-  const [shapeChannel, setShapeChannel] = useChannel(schema)
-  const [tooltipChannel, setTooltipChannel] = useChannel(schema)
+  const [colorChannel, setColorChannel, clearColor] = useChannel(schema);
+  const [sizeChannel, setSizeChannel, clearSize] = useChannel(schema);
+  const [shapeChannel, setShapeChannel, clearShape] = useChannel(schema);
+  const [tooltipChannel, setTooltipChannel, clearTooltip] = useChannel(schema);
 
   const fieldOptions = fieldOptionsForSchema(schema);
+
+  const swap = () => {
+    setXChannel.all(yChannel)
+    setYChannel.all(xChannel)
+  }
 
   const spec = {
     ...defaultSpec(),
     mark: selectedMark && selectedMark.value,
-    width,
-    height,
     data,
     encoding: {
       x: positionChannel(xChannel),
@@ -72,13 +72,19 @@ export const App = () => {
     }
   };
 
+  const handelDataSetChange = (option) => {
+    setDataSetOption(option)
+
+    clearX(); clearY(); clearColor(); clearSize(); clearShape(); clearTooltip()
+  }
+
   return (
     <AppGrid>
       <Header>
         <HeaderGroup>
           <Select
             value={dataSetOption}
-            onChange={setDataSetOption}
+            onChange={handelDataSetChange}
             options={dataSetOptions}
             isSearchable
           />
@@ -95,6 +101,9 @@ export const App = () => {
           schema={schema}
           name="X"
         />
+        <SwapButtonContainer>
+         <SwapButton onClick={swap} />
+        </SwapButtonContainer>
         <PositionChannel
           channel={yChannel}
           setChannel={setYChannel}
@@ -138,30 +147,15 @@ export const App = () => {
       </Fields>
       <SideBar>
         <Heading>Settings</Heading>
-        <Group>
-          <Label>Width</Label>
-          <InputRange
-            maxValue={600}
-            minValue={50}
-            value={width}
-            onChange={setWidth}
-          />
-        </Group>
-        <Group>
-          <Label>Height</Label>
-          <InputRange
-            maxValue={600}
-            minValue={50}
-            value={height}
-            onChange={setHeight}
-          />
-        </Group>
       </SideBar>
-      <Main>
-        <Card>
-          <Vega spec={spec} />
-        </Card>
-      </Main>
+      <VisualizationWindow visualizationSpecification={spec} />
     </AppGrid>
   );
 };
+
+const SwapButtonContainer = styled.div`
+  display: flex; 
+  justify-content: center;
+  margin-top: -24px;
+  margin-bottom: -24px;
+`

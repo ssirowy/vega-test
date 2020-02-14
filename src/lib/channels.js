@@ -4,13 +4,12 @@ export const positionChannel = c => {
 
   const e = channel(c);
 
-  debugger
   if (c.aggregateOption && c.aggregateOption.value) {
     e.aggregate = c.aggregateOption.value;
   }
 
   if (c.timeUnitOption && c.timeUnitOption.value) {
-    e.timeUnit = c.imeUnitOption.value;
+    e.timeUnit = c.timeUnitOption.value;
   }
 
   return e;

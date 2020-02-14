@@ -17,9 +17,15 @@ export const useChannel = (schema) => {
   };  
 
   const clear = () => {
-    setField()
-    setTypeOptions()
-    setType()
+    setField(null)
+    setTypeOptions(null)
+    setType(null)
+  }
+
+  const all = (channel) => {
+    setField(channel.field)
+    setTypeOptions(channel.typeOptions)
+    setType(channel.type)
   }
 
   return [
@@ -31,7 +37,8 @@ export const useChannel = (schema) => {
     {
       field: handleFieldChange,
       typeOptions: setTypeOptions,
-      type: setType
+      type: setType,
+      all
     },
     clear
   ]; 

@@ -8,6 +8,7 @@ import { Group } from '../Group'
 
 export const PositionChannel = ({ channel, setChannel, fieldOptions, name, schema }) => {
 
+    debugger
     const isQuantitative = channel.field && typeForField(schema, channel.field.value).type === "number";
     const isDate = channel.field && typeForField(schema, channel.field.value).type === "date";
 
