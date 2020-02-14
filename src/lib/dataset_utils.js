@@ -1,0 +1,1 @@
+export const dataSetForName = (dataSets, name) => dataSets.find(set => set.label === name)
