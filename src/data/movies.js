@@ -2,7 +2,7 @@ const moviesJson = [{"Title":"The Land Girls","US_Gross":146083,"Worldwide_Gross
 
 
 export const data = {
-    data: moviesJson
+    values: moviesJson
 }
 
 export const schema = {

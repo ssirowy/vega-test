@@ -69,7 +69,7 @@ export const App = () => {
       shape: channel(shapeChannel),
       size: channel(sizeChannel),
       tooltip: channel(tooltipChannel)
-    }
+    },
   };
 
   const handelDataSetChange = (option) => {
@@ -146,12 +146,23 @@ export const App = () => {
         </Group>
       </Fields>
       <SideBar>
-        <Heading>Settings</Heading>
+        <Heading>Chart Style</Heading>
+        <ChartStyle>
+          Fill me in later
+        </ChartStyle>
       </SideBar>
       <VisualizationWindow visualizationSpecification={spec} />
     </AppGrid>
   );
 };
+
+const ChartStyle = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-style: italic;
+  height: 100%;
+`
 
 const SwapButtonContainer = styled.div`
   display: flex; 
