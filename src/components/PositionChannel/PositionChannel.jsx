@@ -11,6 +11,8 @@ export const PositionChannel = ({ channel, setChannel, fieldOptions, name, schem
     const isQuantitative = channel.field && typeForField(schema, channel.field.value).type === "number";
     const isDate = channel.field && typeForField(schema, channel.field.value).type === "date";
 
+    const handleBinChange = event => setChannel.bin(event.target.checked)
+
     return (
         <Group>
             <Label>{name}</Label>
@@ -36,6 +38,9 @@ export const PositionChannel = ({ channel, setChannel, fieldOptions, name, schem
                             onChange={setChannel.aggregateOption}
                             options={channel.aggregateOptions}
                         />
+                    )}
+                    {isQuantitative && (
+                        <div><input type="checkbox" checked={channel.bin} onChange={handleBinChange}/> Bin?</div>
                     )}
                     {isDate && (
                         <Select

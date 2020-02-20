@@ -1,9 +1,11 @@
 import styled from 'styled-components'
 
 export const Main = styled.main`
-  align-items: center;
   background-color: #fafafa;
   display: flex;
-  justify-content: center;
+  align-items: flex-start;
   grid-area: main;
+  overflow: auto;
+  padding-left: 16px;
+  padding-top: 16px;
 `;

@@ -1,19 +1,21 @@
 import React, { useState } from "react";
 import styled from 'styled-components'
-import Select from "react-select";
+import Select from "react-select"
+
+import pickBy from 'lodash/pickBy'
+import identity from 'lodash/identity'
 
 import {
   AppGrid,
   Channel,
+  FieldContent,
   Fields,
   Group,
   Header,
   HeaderGroup,
   HeaderTitle,
   Heading,
-  Label,
   PositionChannel,
-  SideBar,
   SwapButton,
   VisualizationWindow
 } from "./components";
@@ -46,6 +48,9 @@ export const App = () => {
   const [xChannel, setXChannel, clearX] = usePositionChannel(schema);
   const [yChannel, setYChannel, clearY] = usePositionChannel(schema);
 
+  const [rowChannel, setRowChannel, clearRowChannel] = useChannel(schema);
+  const [columnChannel, setColumnChannel, clearColumnChannel] = useChannel(schema)
+
   const [colorChannel, setColorChannel, clearColor] = useChannel(schema);
   const [sizeChannel, setSizeChannel, clearSize] = useChannel(schema);
   const [shapeChannel, setShapeChannel, clearShape] = useChannel(schema);
@@ -53,29 +58,41 @@ export const App = () => {
 
   const fieldOptions = fieldOptionsForSchema(schema);
 
-  const swap = () => {
+  const swapPositions = () => {
     setXChannel.all(yChannel)
     setYChannel.all(xChannel)
   }
 
-  const spec = {
-    ...defaultSpec(),
-    mark: selectedMark && selectedMark.value,
-    data,
-    encoding: {
+  const swapTrellis = () => {
+    setColumnChannel.all(rowChannel)
+    setRowChannel.all(columnChannel)
+  }
+
+  const encoding = pickBy(
+    {
       x: positionChannel(xChannel),
       y: positionChannel(yChannel),
       color: channel(colorChannel),
       shape: channel(shapeChannel),
       size: channel(sizeChannel),
-      tooltip: channel(tooltipChannel)
+      tooltip: channel(tooltipChannel),
+      row: channel(rowChannel),
+      column: channel(columnChannel)
     },
+    identity
+  );
+
+  const spec = {
+    ...defaultSpec(),
+    mark: selectedMark && selectedMark.value,
+    data,
+    encoding
   };
 
   const handelDataSetChange = (option) => {
     setDataSetOption(option)
 
-    clearX(); clearY(); clearColor(); clearSize(); clearShape(); clearTooltip()
+    clearX(); clearY(); clearColor(); clearSize(); clearShape(); clearTooltip(); clearRowChannel(); clearColumnChannel()
   }
 
   return (
@@ -93,64 +110,96 @@ export const App = () => {
         <HeaderGroup />
       </Header>
       <Fields>
-        <Heading>Build</Heading>
-        <PositionChannel
-          channel={xChannel}
-          setChannel={setXChannel}
-          fieldOptions={fieldOptions}
-          schema={schema}
-          name="X"
-        />
-        <SwapButtonContainer>
-         <SwapButton onClick={swap} />
-        </SwapButtonContainer>
-        <PositionChannel
-          channel={yChannel}
-          setChannel={setYChannel}
-          fieldOptions={fieldOptions}
-          schema={schema}
-          name="Y"
-        />
-        <Channel
-          channel={colorChannel}
-          setChannel={setColorChannel}
-          fields={fieldOptions}
-          name="Color"
-        />
-        <Channel
-          channel={sizeChannel}
-          setChannel={setSizeChannel}
-          fields={fieldOptions}
-          name="Size"
-        />
-        <Channel
-          channel={shapeChannel}
-          setChannel={setShapeChannel}
-          fields={fieldOptions}
-          name="Shape"
-        />
-        <Channel
-          channel={tooltipChannel}
-          setChannel={setTooltipChannel}
-          fields={fieldOptions}
-          name="Tooltip"
-        />
-        <Group>
-          <Label>Mark</Label>
-          <Select
-            value={selectedMark}
-            onChange={setMarkOption}
-            options={markOptions}
-            placeholder="Choose a mark"
-          />
-        </Group>
+        <FieldContent>
+          <Heading>Variables</Heading>
+          <Group>
+            <PositionChannel
+              channel={xChannel}
+              setChannel={setXChannel}
+              fieldOptions={fieldOptions}
+              schema={schema}
+              name="Independent"
+            />
+            <SwapButtonContainer>
+              <SwapButton onClick={swapPositions} />
+            </SwapButtonContainer>
+            <PositionChannel
+              channel={yChannel}
+              setChannel={setYChannel}
+              fieldOptions={fieldOptions}
+              schema={schema}
+              name="Dependent"
+            />
+          </Group>
+
+          <Group>
+            <Heading>Facet</Heading>
+            <Channel
+              channel={rowChannel}
+              setChannel={setRowChannel}
+              fields={fieldOptions}
+              schema={schema}
+              name="Row"
+            />
+            <SwapButtonContainer>
+              <SwapButton onClick={swapTrellis} />
+            </SwapButtonContainer>
+            <Channel
+              channel={columnChannel}
+              setChannel={setColumnChannel}
+              fields={fieldOptions}
+              schema={schema}
+              name="Column"
+            />
+          </Group>
+
+          <Group>
+            <Heading>Visual mark</Heading>
+            <Group>
+              <Select
+                value={selectedMark}
+                onChange={setMarkOption}
+                options={markOptions}
+                schema={schema}
+                placeholder="Choose a mark"
+                isClearable
+              />
+            </Group>
+            <Channel
+              channel={colorChannel}
+              setChannel={setColorChannel}
+              fields={fieldOptions}
+              schema={schema}
+              name="Color"
+            />
+            <Channel
+              channel={sizeChannel}
+              setChannel={setSizeChannel}
+              fields={fieldOptions}
+              schema={schema}
+              name="Size"
+            />
+            <Channel
+              channel={shapeChannel}
+              setChannel={setShapeChannel}
+              fields={fieldOptions}
+              schema={schema}
+              name="Shape"
+            />
+            <Channel
+              channel={tooltipChannel}
+              setChannel={setTooltipChannel}
+              fields={fieldOptions}
+              schema={schema}
+              name="Tooltip"
+            />
+          </Group>
+        </FieldContent>
       </Fields>
-      <SideBar>
+      {/* <SideBar>
         <Heading>Chart Style</Heading>
-        <ChartStyle>
-          Fill me in later
-        </ChartStyle>
-      </SideBar>
+        <ChartStyle>Fill me in later</ChartStyle>
+      </SideBar> */}
       <VisualizationWindow visualizationSpecification={spec} />
     </AppGrid>
   );

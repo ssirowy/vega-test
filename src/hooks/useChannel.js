@@ -3,6 +3,7 @@ import { typeOptionsForField } from '../lib'
 
 export const useChannel = (schema) => {
   const [field, setField] = useState();
+  const [bin, setBin] = useState(false)
   const [typeOptions, setTypeOptions] = useState();
   const [type, setType] = useState();
 
@@ -32,12 +33,14 @@ export const useChannel = (schema) => {
     {
       field,
       typeOptions,
-      type
+      type,
+      bin
     },
     {
       field: handleFieldChange,
       typeOptions: setTypeOptions,
       type: setType,
+      bin: setBin,
       all
     },
     clear

@@ -8,5 +8,7 @@ export const AppGrid = styled.div`
     "head head head"
     "fields main side";
   grid-template-rows: 50px 1fr;
-  grid-template-columns: 350px 1fr 350px;
+  grid-template-columns: 350px 1fr;
 `;
+
+// grid-template-columns: 350px 1fr 350px;

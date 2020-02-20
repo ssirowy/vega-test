@@ -4,7 +4,14 @@ import { Label } from '../Label'
 import { InsetContainer } from '../InsetContainer'
 import { Group } from '../Group'
 
-export const Channel = ({ channel, setChannel, name, fields }) => {
+import { typeForField } from '../../lib'
+
+
+export const Channel = ({ channel, setChannel, name, fields, schema }) => {
+
+    const isQuantitative = channel.field && typeForField(schema, channel.field.value).type === "number";
+    const handleBinChange = event => setChannel.bin(event.target.checked)
+
     return (
         <Group>
             <Label>{name} by </Label>
@@ -24,6 +31,9 @@ export const Channel = ({ channel, setChannel, name, fields }) => {
                             onChange={setChannel.type}
                             options={channel.typeOptions}
                         />
+                        {isQuantitative && (
+                            <div><input type="checkbox" checked={channel.bin} onChange={handleBinChange} /> Bin?</div>
+                        )}
                     </InsetContainer>
                 )
             }

@@ -35,8 +35,8 @@ export const VisualizationWindow = ({ visualizationSpecification }) => {
         {({ width, height }) => {
           const spec = {
             ...visualizationSpecification,
-            height: height * 0.8,
-            width: width * 0.8
+            //height: height * 0.8,
+            //width: width * 0.8
           };
           return (
             <Card>

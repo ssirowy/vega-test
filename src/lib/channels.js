@@ -15,7 +15,8 @@ export const positionChannel = c => {
   return e;
 };
 
-export const channel = c => ({
+export const channel = c => c.field ? ({
   field:  c.field && c.field.value,
-  type: c.type && c.type.value
-});
+  type: c.type && c.type.value,
+  bin: c.bin
+}) : null
