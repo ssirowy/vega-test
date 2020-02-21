@@ -15,6 +15,12 @@ export const HeaderGroup = styled.div`
   width: 315px;
 `;
 
+export const ButtonGroup = styled.div`
+display: flex;
+justify-content: flex-end;
+width: 315px;
+`
+
 export const HeaderTitle = styled.div`
 color: white;
   font-size: 22px;

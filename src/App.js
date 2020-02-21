@@ -1,12 +1,16 @@
 import React, { useState } from "react";
-import styled from 'styled-components'
-import Select from "react-select"
+import styled from "styled-components";
+import Select from "react-select";
+import Modal from "react-modal";
 
-import pickBy from 'lodash/pickBy'
-import identity from 'lodash/identity'
+import pickBy from "lodash/pickBy";
+import identity from "lodash/identity";
+import last from "lodash/last";
 
 import {
+  AddButton,
   AppGrid,
+  ButtonGroup,
   Channel,
   FieldContent,
   Fields,
@@ -22,6 +26,7 @@ import {
 
 import {
   channel,
+  dataSetFromString,
   dataSetForName,
   dataSetsOptionsFromDataSets,
   defaultSpec,
@@ -34,11 +39,23 @@ import { useChannel, usePositionChannel } from "./hooks";
 
 import "react-input-range/lib/css/index.css";
 
-import { dataSets } from "./data";
+import { dataSets as initialDataSets } from "./data";
+
+const customStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)"
+  }
+};
 
 export const App = () => {
-  const dataSetOptions = dataSetsOptionsFromDataSets(dataSets);
 
+  const [dataSets, setDataSets] = useState(initialDataSets)
+  const [dataSetOptions, setDataSetOptions] = useState(dataSetsOptionsFromDataSets(dataSets))
   const [dataSetOption, setDataSetOption] = useState(dataSetOptions[0]);
 
   const { data, schema } = dataSetForName(dataSets, dataSetOption.value);
@@ -49,24 +66,32 @@ export const App = () => {
   const [yChannel, setYChannel, clearY] = usePositionChannel(schema);
 
   const [rowChannel, setRowChannel, clearRowChannel] = useChannel(schema);
-  const [columnChannel, setColumnChannel, clearColumnChannel] = useChannel(schema)
+  const [columnChannel, setColumnChannel, clearColumnChannel] = useChannel(
+    schema
+  );
 
   const [colorChannel, setColorChannel, clearColor] = useChannel(schema);
   const [sizeChannel, setSizeChannel, clearSize] = useChannel(schema);
   const [shapeChannel, setShapeChannel, clearShape] = useChannel(schema);
   const [tooltipChannel, setTooltipChannel, clearTooltip] = useChannel(schema);
 
+  const [modalIsOpen, setIsOpen] = React.useState(false);
+  const openModal = () => setIsOpen(true);
+  const closeModal = () => setIsOpen(false);
+
+  const [importDataString, setImportData] = React.useState("")
+
   const fieldOptions = fieldOptionsForSchema(schema);
 
   const swapPositions = () => {
-    setXChannel.all(yChannel)
-    setYChannel.all(xChannel)
-  }
+    setXChannel.all(yChannel);
+    setYChannel.all(xChannel);
+  };
 
   const swapTrellis = () => {
-    setColumnChannel.all(rowChannel)
-    setRowChannel.all(columnChannel)
-  }
+    setColumnChannel.all(rowChannel);
+    setRowChannel.all(columnChannel);
+  };
 
   const encoding = pickBy(
     {
@@ -89,11 +114,32 @@ export const App = () => {
     encoding
   };
 
-  const handelDataSetChange = (option) => {
-    setDataSetOption(option)
+  const handelDataSetChange = option => {
+    setDataSetOption(option);
 
-    clearX(); clearY(); clearColor(); clearSize(); clearShape(); clearTooltip(); clearRowChannel(); clearColumnChannel()
+    clearX();
+    clearY();
+    clearColor();
+    clearSize();
+    clearShape();
+    clearTooltip();
+    clearRowChannel();
+    clearColumnChannel();
+  };
+
+  const importData = () => {
+    const dataSet = dataSetFromString(importDataString)
+    const newDataSets = [...dataSets, dataSet]
+    const newOptions = dataSetsOptionsFromDataSets(newDataSets)
+    setDataSets(newDataSets)
+    setDataSetOptions(newOptions)
+
+    handelDataSetChange(last(newOptions))
+    setImportData("")
+    closeModal()
   }
+
+  const handleDataImportChange = event => setImportData(event.target.value)
 
   return (
     <AppGrid>
@@ -107,8 +153,20 @@ export const App = () => {
           />
         </HeaderGroup>
         <HeaderTitle>Visualization builder</HeaderTitle>
-        <HeaderGroup />
+        <ButtonGroup>
+          <AddButton onClick={openModal} />
+        </ButtonGroup>
       </Header>
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        style={customStyles}
+        contentLabel="Import data"
+      >
+        <Heading>Import data</Heading>
+        <TextArea value={importDataString} onChange={handleDataImportChange} />
+        <button onClick={importData}>Import</button>
+      </Modal>
       <Fields>
         <FieldContent>
           <Heading>Variables</Heading>
@@ -131,7 +189,6 @@ export const App = () => {
               name="Dependent"
             />
           </Group>
-
           <Group>
             <Heading>Facet</Heading>
             <Channel
@@ -152,7 +209,6 @@ export const App = () => {
               name="Column"
             />
           </Group>
-
           <Group>
             <Heading>Visual mark</Heading>
             <Group>
@@ -211,11 +267,16 @@ const ChartStyle = styled.div`
   align-items: center;
   font-style: italic;
   height: 100%;
+`;
+
+const TextArea = styled.textarea`
+  height: 400px;
+  width: 600px;
 `
 
 const SwapButtonContainer = styled.div`
-  display: flex; 
+  display: flex;
   justify-content: center;
   margin-top: -24px;
   margin-bottom: -24px;
-`
+`;
