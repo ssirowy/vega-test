@@ -1,21 +1,17 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Select from "react-select";
-import Modal from "react-modal";
 
 import pickBy from "lodash/pickBy";
 import identity from "lodash/identity";
 import last from "lodash/last";
 
-import { useLocation } from "react-router-dom";
 import usePromise from 'react-use-promise';
 
 import jsonURL from "json-url"
 
 import {
-  AddButton,
   AppGrid,
-  ButtonGroup,
   Channel,
   FieldContent,
   Fields,
@@ -24,6 +20,7 @@ import {
   HeaderGroup,
   HeaderTitle,
   Heading,
+  Logo,
   PositionChannel,
   SwapButton,
   VisualizationWindow
@@ -40,30 +37,15 @@ import {
   markOptions
 } from "./lib";
 
-import { useChannel, usePositionChannel } from "./hooks";
+import { useChannel, usePositionChannel, useQueryParam } from "./hooks";
 
 import "react-input-range/lib/css/index.css";
 
 import { dataSets as initialDataSets } from "./data";
 
-const useQuery  = () => {
-  return new URLSearchParams(useLocation().search).get("data");
-}
-
-const customStyles = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)"
-  }
-};
-
 export const Editor = () => {
 
-  const queryParamData = useQuery()
+  const queryParamData = useQueryParam('data')
 
   const [dataJSON] = usePromise(
     () => {
@@ -97,12 +79,6 @@ export const Editor = () => {
   const [sizeChannel, setSizeChannel, clearSize] = useChannel(schema);
   const [shapeChannel, setShapeChannel, clearShape] = useChannel(schema);
   const [tooltipChannel, setTooltipChannel, clearTooltip] = useChannel(schema);
-
-  const [modalIsOpen, setIsOpen] = React.useState(false);
-  const openModal = () => setIsOpen(true);
-  const closeModal = () => setIsOpen(false);
-
-  const [importDataString, setImportData] = React.useState("")
 
   const fieldOptions = fieldOptionsForSchema(schema);
 
@@ -157,22 +133,22 @@ export const Editor = () => {
   };
 
   const importData = (dataString) => {
-    const dataSet = dataSetFromString(dataString || importDataString)
+    const dataSet = dataSetFromString(dataString)
     const newDataSets = [...dataSets, dataSet]
     const newOptions = dataSetsOptionsFromDataSets(newDataSets)
     setDataSets(newDataSets)
     setDataSetOptions(newOptions)
 
     handelDataSetChange(last(newOptions))
-    setImportData("")
-    closeModal()
   }
-
-  const handleDataImportChange = event => setImportData(event.target.value)
 
   return (
     <AppGrid>
       <Header>
+        <Flex>
+          <Logo />
+          <HeaderTitle>Visualization builder</HeaderTitle>
+        </Flex>
         <HeaderGroup>
           <Select
             value={dataSetOption}
@@ -181,24 +157,10 @@ export const Editor = () => {
             isSearchable
           />
         </HeaderGroup>
-        <HeaderTitle>Visualization builder</HeaderTitle>
-        <ButtonGroup>
-          {/* <AddButton onClick={openModal} /> */}
-        </ButtonGroup>
       </Header>
-      <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={closeModal}
-        style={customStyles}
-        contentLabel="Import data"
-      >
-        <Heading>Import data</Heading>
-        <TextArea value={importDataString} onChange={handleDataImportChange} />
-        <button onClick={importData}>Import</button>
-      </Modal>
       <Fields>
+        <DatasetTitle>{dataSetOption.label}</DatasetTitle>
         <FieldContent>
-          <Heading>Variables</Heading>
           <Group>
             <PositionChannel
               channel={xChannel}
@@ -290,6 +252,10 @@ export const Editor = () => {
   );
 };
 
+const Flex = styled.div`
+   display: flex;
+`
+
 const ChartStyle = styled.div`
   display: flex;
   justify-content: center;
@@ -298,14 +264,16 @@ const ChartStyle = styled.div`
   height: 100%;
 `;
 
-const TextArea = styled.textarea`
-  height: 400px;
-  width: 600px;
-`
-
 const SwapButtonContainer = styled.div`
   display: flex;
   justify-content: center;
   margin-top: -24px;
   margin-bottom: -24px;
 `;
+
+const DatasetTitle = styled.div`
+   color: #6C43E0;
+   font-size: 20px;
+   margin-left: 16px;
+   margin-top: 8px;
+`

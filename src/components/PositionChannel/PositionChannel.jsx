@@ -6,6 +6,8 @@ import { Label } from '../Label'
 import { InsetContainer } from '../InsetContainer'
 import { Group } from '../Group'
 
+import { FieldMenu } from '../FieldMenu'
+
 export const PositionChannel = ({ channel, setChannel, fieldOptions, name, schema }) => {
 
     const isQuantitative = channel.field && typeForField(schema, channel.field.value).type === "number";
@@ -20,6 +22,9 @@ export const PositionChannel = ({ channel, setChannel, fieldOptions, name, schem
                 value={channel.field}
                 onChange={setChannel.field}
                 options={fieldOptions}
+                // components={{ Menu: FieldMenu }} 
+                // menuPortalTarget={document.body}
+                placeholder="Select a field"
                 isSearchable
                 isClearable
             />

@@ -3,6 +3,8 @@ import { Vega } from "react-vega";
 // import { compile } from 'vega-lite'
 import ContainerDimensions from "react-container-dimensions";
 
+import { FieldMenu } from '../FieldMenu'
+
 import { Card, Main } from "./components";
 
 /*
@@ -31,6 +33,8 @@ export const VisualizationWindow = ({ visualizationSpecification }) => {
 
   return (
     <Main>
+      {/* <FieldMenu /> */}
+
       <ContainerDimensions>
         {({ width, height }) => {
           const spec = {
